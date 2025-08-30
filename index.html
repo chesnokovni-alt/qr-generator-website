@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator - Создание QR-кодов онлайн</title>
+    <meta name="description" content="Бесплатный онлайн генератор QR-кодов. Создавайте QR-коды для ссылок, текста, контактов и многого другого.">
+    <meta name="keywords" content="QR код, генератор, онлайн, бесплатно, ссылка, текст, контакт">
+    
+    <!-- Стили -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Шрифты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Иконки -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Библиотека qrcode.js для QR-кодов -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- Библиотека SheetJS для чтения Excel файлов -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <!-- Библиотека JSZip для создания архивов -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="title">
+                <span class="title-icon">📱</span>
+                QR Code Generator
+            </h1>
+            <p class="subtitle">Создавайте QR-коды для любых целей быстро и бесплатно</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Single QR Code Section -->
+            <section class="qr-section">
+                <h2 class="section-title">
+                    <i class="fas fa-qrcode"></i>
+                    Создать QR-код
+                </h2>
+                
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="text-input" class="input-label">Текст или ссылка для QR-кода</label>
+                        <div class="input-wrapper">
+                            <textarea 
+                                id="text-input" 
+                                class="text-input" 
+                                placeholder="Введите текст, ссылку, email или любой другой контент..."
+                                rows="3"
+                            ></textarea>
+                            <button id="generate-btn" class="btn btn-primary">
+                                <i class="fas fa-magic"></i>
+                                Создать
+                            </button>
+                        </div>
+                        <div class="input-hint">
+                            <i class="fas fa-info-circle"></i>
+                            Нажмите Ctrl+Enter для быстрой генерации
+                        </div>
+                    </div>
+
+                    <div class="options-row">
+                        <div class="option-group">
+                            <label for="qr-size" class="option-label">Размер QR-кода</label>
+                            <select id="qr-size" class="select-input">
+                                <option value="200">200x200</option>
+                                <option value="300" selected>300x300</option>
+                                <option value="400">400x400</option>
+                                <option value="500">500x500</option>
+                                <option value="600">600x600</option>
+                            </select>
+                        </div>
+                        
+                        <div class="option-group">
+                            <label for="qr-color" class="option-label">Цвет QR-кода</label>
+                            <input type="color" id="qr-color" class="color-input" value="#000000">
+                        </div>
+                        
+                        <div class="option-group">
+                            <label for="qr-error-correction" class="option-label">Уровень коррекции</label>
+                            <select id="qr-error-correction" class="select-input">
+                                <option value="L">L (7%)</option>
+                                <option value="M" selected>M (15%)</option>
+                                <option value="Q">Q (25%)</option>
+                                <option value="H">H (30%)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Section -->
+                <div id="result-section" class="result-section" style="display: none;">
+                    <h3 class="result-title">Ваш QR-код готов!</h3>
+                    <div class="qr-result">
+                        <canvas id="qr-canvas" class="qr-canvas"></canvas>
+                        <div class="qr-actions">
+                            <button id="download-btn" class="btn btn-secondary">
+                                <i class="fas fa-download"></i>
+                                Скачать PNG
+                            </button>
+                            <button id="copy-btn" class="btn btn-secondary">
+                                <i class="fas fa-copy"></i>
+                                Копировать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Excel Upload Section -->
+            <section class="excel-section">
+                <h2 class="section-title">
+                    <i class="fas fa-file-excel"></i>
+                    Массовое создание QR-кодов из Excel
+                </h2>
+                
+                <div class="excel-upload-area" id="excel-upload-area">
+                    <div class="upload-content">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <h3>Загрузите Excel файл</h3>
+                        <p>Поддерживаются файлы .xlsx, .xls, .csv</p>
+                        <p class="file-hint">Формат: каждая строка = один QR-код</p>
+                        <p class="file-hint">Настройте количество строк в одном QR-коде ниже</p>
+                        <p class="file-hint" id="excel-file-info">Загрузите файл для предварительного расчета</p>
+                        <button id="select-file-btn" class="btn btn-outline">
+                            <i class="fas fa-folder-open"></i>
+                            Выбрать файл
+                        </button>
+                        <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv" style="display: none;">
+                    </div>
+                </div>
+
+                <div id="excel-options" class="excel-options" style="display: none;">
+                    <div class="options-row">
+                        <div class="option-group">
+                            <label for="rows-per-qr" class="option-label">Строк в одном QR-коде</label>
+                            <select id="rows-per-qr" class="select-input">
+                                <option value="1">1 строка</option>
+                                <option value="5">5 строк</option>
+                                <option value="10" selected>10 строк</option>
+                                <option value="20">20 строк</option>
+                                <option value="50">50 строк</option>
+                                <option value="100">100 строк</option>
+                                <option value="200">200 строк</option>
+                                <option value="500">500 строк</option>
+                            </select>
+                        </div>
+                        
+                        <div class="option-group">
+                            <label for="max-rows" class="option-label">Максимум строк (общий лимит)</label>
+                            <select id="max-rows" class="select-input">
+                                <option value="50">50</option>
+                                <option value="100" selected>100</option>
+                                <option value="200">200</option>
+                                <option value="500">500</option>
+                                <option value="1000">1000</option>
+                            </select>
+                        </div>
+                        
+                        <div class="option-group">
+                            <label for="excel-qr-size" class="option-label">Размер QR-кодов</label>
+                            <select id="excel-qr-size" class="select-input">
+                                <option value="150">150x150</option>
+                                <option value="200" selected>200x200</option>
+                                <option value="250">250x250</option>
+                            </select>
+                        </div>
+                        
+                        <div class="option-group">
+                            <label for="excel-qr-color" class="option-label">Цвет QR-кодов</label>
+                            <input type="color" id="excel-qr-color" class="color-input" value="#000000">
+                        </div>
+                    </div>
+                    
+                    <button id="process-excel-btn" class="btn btn-primary btn-large">
+                        <i class="fas fa-cogs"></i>
+                        Обработать Excel файл
+                    </button>
+                </div>
+
+                <!-- Excel Progress -->
+                <div id="excel-progress" class="excel-progress" style="display: none;">
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <div id="progress-text" class="progress-text">Обработка...</div>
+                </div>
+            </section>
+
+            <!-- Multiple Results Section -->
+            <div id="multiple-results-section" class="multiple-results-section" style="display: none;">
+                <div class="results-header">
+                    <h3>Результаты обработки Excel</h3>
+                    <div class="results-stats">
+                        <span id="total-qr-codes">0 QR-кодов</span>
+                        <span id="total-rows">0 строк</span>
+                    </div>
+                </div>
+                
+                <div id="qr-grid" class="qr-grid"></div>
+                
+                <div class="bulk-actions">
+                    <button id="download-all-btn" class="btn btn-primary btn-large">
+                        <i class="fas fa-download"></i>
+                        Скачать все QR-коды (ZIP)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 QR Code Generator. Создано с ❤️ для удобства пользователей.</p>
+        </div>
+    </footer>
+
+    <!-- Notification Container -->
+    <div id="notification-container" class="notification-container"></div>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
