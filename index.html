@@ -143,6 +143,7 @@
                         <p>Поддерживаются файлы .xlsx, .xls, .csv</p>
                         <p class="file-hint">Формат: каждая строка = один QR-код</p>
                         <p class="file-hint">Настройте количество строк в одном QR-коде ниже</p>
+                        <p class="file-hint">⚠️ Для файлов более 5000 строк может потребоваться время</p>
                         <p class="file-hint" id="excel-file-info">Загрузите файл для предварительного расчета</p>
                         <button id="select-file-btn" class="btn btn-outline">
                             <i class="fas fa-folder-open"></i>
@@ -176,6 +177,9 @@
                                 <option value="200">200</option>
                                 <option value="500">500</option>
                                 <option value="1000">1000</option>
+                                <option value="5000">5000</option>
+                                <option value="10000">10000</option>
+                                <option value="50000">50000</option>
                             </select>
                         </div>
                         

@@ -355,6 +355,17 @@ async function processExcelFile() {
         return;
     }
     
+    // Предупреждения для больших лимитов
+    if (maxRows >= 5000) {
+        const confirmLargeFile = confirm(`⚠️ Внимание! Вы выбрали большой лимит: ${maxRows} строк.\n\nЭто может занять много времени и потребовать много памяти.\n\nПродолжить?`);
+        if (!confirmLargeFile) {
+            return;
+        }
+        
+        // Показываем дополнительное предупреждение
+        showNotification(`Обработка большого файла (${maxRows} строк). Это может занять несколько минут.`, 'warning');
+    }
+    
     try {
         // Проверяем элементы прогресса
         if (!excelProgress || !progressFill || !progressText) {
@@ -412,8 +423,17 @@ async function processExcelFile() {
             progressFill.style.width = progress + '%';
             progressText.textContent = `Обработано ${processedGroups} из ${dataGroups.length} групп...`;
             
-            // Небольшая задержка для плавности
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Адаптивная задержка для больших файлов
+            if (maxRows >= 5000) {
+                // Для больших файлов - минимальная задержка для скорости
+                await new Promise(resolve => setTimeout(resolve, 10));
+            } else if (maxRows >= 1000) {
+                // Для средних файлов - небольшая задержка
+                await new Promise(resolve => setTimeout(resolve, 50));
+            } else {
+                // Для маленьких файлов - стандартная задержка для плавности
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
         }
         
         // Показываем результаты
@@ -985,7 +1005,27 @@ function updateExcelPreview() {
         // Обновляем информацию о файле
         const fileInfo = document.getElementById('excel-file-info');
         if (fileInfo) {
-            fileInfo.textContent = `Найдено ${excelData.length} строк. Будет создано примерно ${estimatedQRCodes} QR-кодов`;
+            let infoText = `Найдено ${excelData.length} строк. Будет создано примерно ${estimatedQRCodes} QR-кодов`;
+            
+            // Добавляем предупреждения для больших лимитов
+            if (maxRows >= 50000) {
+                infoText += ` ⚠️ Очень большой файл (${maxRows} строк)`;
+            } else if (maxRows >= 10000) {
+                infoText += ` ⚠️ Большой файл (${maxRows} строк)`;
+            } else if (maxRows >= 5000) {
+                infoText += ` ⚠️ Средний файл (${maxRows} строк)`;
+            }
+            
+            fileInfo.textContent = infoText;
+            
+            // Добавляем цветовое кодирование для больших файлов
+            if (maxRows >= 10000) {
+                fileInfo.style.color = '#dc3545'; // Красный для очень больших
+            } else if (maxRows >= 5000) {
+                fileInfo.style.color = '#ffc107'; // Желтый для больших
+            } else {
+                fileInfo.style.color = '#6c757d'; // Обычный цвет
+            }
         }
         
         console.log(`Предварительный расчет обновлен: ${estimatedQRCodes} QR-кодов из ${Math.min(excelData.length, maxRows)} строк`);
