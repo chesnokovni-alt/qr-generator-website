@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Фон -->
+  <rect width="100" height="100" fill="#667eea" rx="12"/>
+  
+  <!-- Штрих-код -->
+  <g fill="white">
+    <!-- Первая группа полосок -->
+    <rect x="15" y="25" width="2" height="50"/>
+    <rect x="20" y="25" width="1" height="50"/>
+    <rect x="24" y="25" width="3" height="50"/>
+    <rect x="30" y="25" width="1" height="50"/>
+    <rect x="34" y="25" width="2" height="50"/>
+    
+    <!-- Вторая группа полосок -->
+    <rect x="40" y="25" width="1" height="50"/>
+    <rect x="44" y="25" width="3" height="50"/>
+    <rect x="50" y="25" width="1" height="50"/>
+    <rect x="54" y="25" width="2" height="50"/>
+    <rect x="59" y="25" width="1" height="50"/>
+    
+    <!-- Третья группа полосок -->
+    <rect x="65" y="25" width="2" height="50"/>
+    <rect x="70" y="25" width="1" height="50"/>
+    <rect x="74" y="25" width="3" height="50"/>
+    <rect x="80" y="25" width="1" height="50"/>
+    <rect x="84" y="25" width="2" height="50"/>
+  </g>
+  
+  <!-- QR-код символ в углу -->
+  <g fill="white" opacity="0.8">
+    <rect x="75" y="75" width="20" height="20" rx="2"/>
+    <rect x="78" y="78" width="14" height="14" fill="#667eea"/>
+    <rect x="81" y="81" width="8" height="8" fill="white"/>
+    <rect x="83" y="83" width="4" height="4" fill="#667eea"/>
+  </g>
+</svg>
